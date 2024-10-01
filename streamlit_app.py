@@ -28,7 +28,7 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-chain = prompt | ChatOpenAI(st.secrets["OPENAI_API_KEY"])
+chain = prompt | ChatOpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 chain_with_history = RunnableWithMessageHistory(
     chain,

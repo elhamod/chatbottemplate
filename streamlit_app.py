@@ -1,56 +1,52 @@
-import streamlit as st
-from openai import OpenAI
+# Just following this: https://python.langchain.com/docs/integrations/memory/streamlit_chat_message_history/
 
-# Show title and description.
-st.title("💬 Chatbot")
-st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
+from langchain_community.chat_message_histories import (
+    StreamlitChatMessageHistory,
 )
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
+history = StreamlitChatMessageHistory(key="chat_messages")
 
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+history.add_user_message("hi!")
+history.add_ai_message("whats up?")
 
-    # Create a session state variable to store the chat messages. This ensures that the
-    # messages persist across reruns.
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+# Optionally, specify your own session_state key for storing messages
+msgs = StreamlitChatMessageHistory(key="special_app_key")
 
-    # Display the existing chat messages via `st.chat_message`.
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+if len(msgs.messages) == 0:
+    msgs.add_ai_message("How can I help you?")
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
 
-        # Store and display the current prompt.
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_openai import ChatOpenAI
 
-        # Generate a response using the OpenAI API.
-        stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
-        )
+prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", "You are an AI chatbot having a conversation with a human."),
+        MessagesPlaceholder(variable_name="history"),
+        ("human", "{question}"),
+    ]
+)
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
-        with st.chat_message("assistant"):
-            response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+chain = prompt | ChatOpenAI()
+
+chain_with_history = RunnableWithMessageHistory(
+    chain,
+    lambda session_id: msgs,  # Always return the instance created earlier
+    input_messages_key="question",
+    history_messages_key="history",
+)
+
+
+import streamlit as st
+
+for msg in msgs.messages:
+    st.chat_message(msg.type).write(msg.content)
+
+if prompt := st.chat_input():
+    st.chat_message("human").write(prompt)
+
+    # As usual, new messages are added to StreamlitChatMessageHistory when the Chain is called.
+    config = {"configurable": {"session_id": "any"}}
+    response = chain_with_history.invoke({"question": prompt}, config)
+    st.chat_message("ai").write(response.content)

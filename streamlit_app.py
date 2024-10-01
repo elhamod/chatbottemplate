@@ -3,11 +3,10 @@ import streamlit as st
 from langchain_community.chat_message_histories import (
     StreamlitChatMessageHistory,
 )
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_openai import ChatOpenAI
 
-# history = StreamlitChatMessageHistory(key="chat_messages")
-
-# history.add_user_message("hi!")
-# history.add_ai_message("whats up?")
 
 # # Optionally, specify your own session_state key for storing messages
 msgs = StreamlitChatMessageHistory()
@@ -15,10 +14,6 @@ msgs = StreamlitChatMessageHistory()
 if len(msgs.messages) == 0:
     msgs.add_ai_message("How can I help you?")
 
-
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_openai import ChatOpenAI
 
 prompt = ChatPromptTemplate.from_messages(
     [

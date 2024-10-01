@@ -1,5 +1,5 @@
 # Just following this: https://python.langchain.com/docs/integrations/memory/streamlit_chat_message_history/
-
+import streamlit as st
 from langchain_community.chat_message_histories import (
     StreamlitChatMessageHistory,
 )

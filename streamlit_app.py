@@ -6,14 +6,14 @@ from langchain_community.chat_message_histories import (
 
 history = StreamlitChatMessageHistory(key="chat_messages")
 
-history.add_user_message("hi!")
+# history.add_user_message("hi!")
 history.add_ai_message("whats up?")
 
-# Optionally, specify your own session_state key for storing messages
-msgs = StreamlitChatMessageHistory(key="special_app_key")
+# # Optionally, specify your own session_state key for storing messages
+# msgs = StreamlitChatMessageHistory(key="special_app_key")
 
-if len(msgs.messages) == 0:
-    msgs.add_ai_message("How can I help you?")
+# if len(msgs.messages) == 0:
+#     msgs.add_ai_message("How can I help you?")
 
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -47,6 +47,6 @@ if prompt := st.chat_input():
     st.chat_message("human").write(prompt)
 
     # As usual, new messages are added to StreamlitChatMessageHistory when the Chain is called.
-    config = {"configurable": {"session_id": "any"}}
-    response = chain_with_history.invoke({"question": prompt}, config)
+    # config = {"configurable": {"session_id": "any"}}
+    response = chain_with_history.invoke({"question": prompt})#, config)
     st.chat_message("ai").write(response.content)

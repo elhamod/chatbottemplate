@@ -4,16 +4,16 @@ from langchain_community.chat_message_histories import (
     StreamlitChatMessageHistory,
 )
 
-history = StreamlitChatMessageHistory(key="chat_messages")
+# history = StreamlitChatMessageHistory(key="chat_messages")
 
 # history.add_user_message("hi!")
-history.add_ai_message("whats up?")
+# history.add_ai_message("whats up?")
 
 # # Optionally, specify your own session_state key for storing messages
-# msgs = StreamlitChatMessageHistory(key="special_app_key")
+msgs = StreamlitChatMessageHistory()
 
-# if len(msgs.messages) == 0:
-#     msgs.add_ai_message("How can I help you?")
+if len(msgs.messages) == 0:
+    msgs.add_ai_message("How can I help you?")
 
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder

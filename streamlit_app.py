@@ -9,7 +9,7 @@ from langchain_openai import ChatOpenAI
 
 
 # # Optionally, specify your own session_state key for storing messages
-msgs = StreamlitChatMessageHistory()
+msgs = StreamlitChatMessageHistory(key="special_app_key")
 
 if len(msgs.messages) == 0:
     msgs.add_ai_message("How can I help you?")

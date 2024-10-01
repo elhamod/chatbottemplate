@@ -42,6 +42,6 @@ if prompt := st.chat_input():
     st.chat_message("human").write(prompt)
 
     # As usual, new messages are added to StreamlitChatMessageHistory when the Chain is called.
-    # config = {"configurable": {"session_id": "any"}}
-    response = chain_with_history.invoke({"question": prompt})#, config)
+    config = {"configurable": {"session_id": "any"}}
+    response = chain_with_history.invoke({"question": prompt}), config)
     st.chat_message("ai").write(response.content)
